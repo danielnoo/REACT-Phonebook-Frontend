@@ -1,27 +1,27 @@
 import React, { useState, useEffect } from 'react'
-import Note from './components/Note'
+import Entry from './components/Entry'
 import Notification from './components/Notification'
 import Footer from './components/Footer'
-import entryService from './services/notes'
+import entryService from './services/entries'
 
 const App = () => {
-  const [notes, setNotes] = useState([])
-  const [newNote, setNewNote] = useState('')
+  const [entries, setEntries] = useState([])
+  const [newEntry, setNewEntry] = useState('')
   const [showAll, setShowAll] = useState(false)
   const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect(() => {
     entryService
       .getAll()
-      .then(initialNotes => {
-      setNotes(initialNotes)
+      .then(initialEntries => {
+      setEntries(initialEntries)
     })
   }, [])
 
   const addNote = (event) => {
     event.preventDefault()
     const noteObject = {
-      content: newNote,
+      content: newEntry,
       date: new Date().toISOString(),
       important: Math.random() > 0.5,
     }
@@ -29,23 +29,23 @@ const App = () => {
     entryService
       .create(noteObject)
         .then(returnedNote => {
-        setNotes(notes.concat(returnedNote))
-        setNewNote('')
+        setEntries(entries.concat(returnedNote))
+        setNewEntry('')
       })
   }
 
   const toggleImportanceOf = id => {
-    const note = notes.find(n => n.id === id)
-    const changedNote = { ...note, important: !note.important }
+    const entry = entries.find(n => n.id === id)
+    const changedEntry = { ...entry, important: !entry.important }
   
     entryService
-    .update(id, changedNote)
-      .then(returnedNote => {
-      setNotes(notes.map(note => note.id !== id ? note : returnedNote))
+    .update(id, changedEntry)
+      .then(returnedEntry => {
+      setEntries(entries.map(entry => entry.id !== id ? entry : returnedEntry))
     })
     .catch(error => {
       setErrorMessage(
-        `Note '${note.content}' was already removed from server`
+        `Entry '${entry.content}' was already removed from server`
       )
       setTimeout(() => {
         setErrorMessage(null)
@@ -53,18 +53,18 @@ const App = () => {
     })    
   }
 
-  const handleNoteChange = (event) => {
+  const handleEntryChange = (event) => {
     console.log(event.target.value)
-    setNewNote(event.target.value)
+    setNewEntry(event.target.value)
   }
 
-  const notesToShow = showAll
-  ? notes
-  : notes.filter(note => note.important)
+  const entriesToShow = showAll
+  ? entries
+  : entries.filter(entry => entry.important)
 
   return (
     <div>
-      <h1>Notes</h1>
+      <h1>Phonebook Entries</h1>
       <Notification message={errorMessage} />
       <div>
         <button onClick={() => setShowAll(!showAll)}>
@@ -72,18 +72,18 @@ const App = () => {
         </button>
       </div>   
       <ul>
-        {notesToShow.map(note => 
-            <Note
-              key={note.id}
-              note={note} 
-              toggleImportance={() => toggleImportanceOf(note.id)}
+        {entriesToShow.map(entry => 
+            <Entry
+              key={entry.id}
+              entry={entry} 
+              toggleImportance={() => toggleImportanceOf(entry.id)}
             />
         )}
       </ul>
       <form onSubmit={addNote}>
         <input
-          value={newNote}
-          onChange={handleNoteChange}
+          value={newEntry}
+          onChange={handleEntryChange}
         />
         <button type="submit">save</button>
       </form>  
