@@ -9,6 +9,7 @@ const App = () => {
   const [newEntry, setNewEntry] = useState('')
   const [showAll, setShowAll] = useState(false)
   const [errorMessage, setErrorMessage] = useState(null)
+  const [entriesToShow, setEntriesToShow] = useState([])
 
   useEffect(() => {
     entryService
@@ -58,9 +59,16 @@ const App = () => {
     setNewEntry(event.target.value)
   }
 
-  const entriesToShow = showAll
-  ? entries
-  : entries.filter(entry => entry.important)
+  useEffect(() => {
+    const filterImportant = showAll
+      ? entries
+      : entries.filter((entry) => entry.important)
+
+    setEntriesToShow(filterImportant)
+
+    
+  },[showAll, entries])
+  
 
   return (
     <div>
@@ -73,6 +81,7 @@ const App = () => {
       </div>   
       <ul>
         {entriesToShow.map(entry => 
+
             <Entry
               key={entry.id}
               entry={entry} 
