@@ -1,5 +1,5 @@
 import axios from "axios";
-const baseUrl = "https://murmuring-savannah-09830.herokuapp.com/api/persons";
+const baseUrl = "/api/persons";
 
 const entries = {}
 
