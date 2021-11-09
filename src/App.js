@@ -6,7 +6,8 @@ import entryService from './services/entries'
 
 const App = () => {
   const [entries, setEntries] = useState([])
-  const [newEntry, setNewEntry] = useState('')
+  const [numEntry, setNumEntry] = useState('')
+  const [nameEntry, setNameEntry] = useState('')
   const [showAll, setShowAll] = useState(false)
   const [errorMessage, setErrorMessage] = useState(null)
   const [entriesToShow, setEntriesToShow] = useState([])
@@ -19,20 +20,29 @@ const App = () => {
     })
   }, [])
 
-  const addNote = (event) => {
+  const addEntry = (event) => {
     event.preventDefault()
-    const noteObject = {
-      content: newEntry,
+    const entryObject = {
+      name: nameEntry,
+      number: numEntry,
       date: new Date().toISOString(),
       important: Math.random() > 0.5,
     }
 
     entryService
-      .create(noteObject)
-        .then(returnedNote => {
-        setEntries(entries.concat(returnedNote))
-        setNewEntry('')
+      .create(entryObject)
+        .then(returnedEntry => {
+        setEntries(entries.concat(returnedEntry))
+        setNumEntry('')
+        setNameEntry('')
       })
+        .catch(error => {
+          setErrorMessage(`${error.response.data.error}`)
+          console.log(error.response.data.error);
+          setTimeout(() => {
+            setErrorMessage(null);
+          }, 5000);
+        })
   }
 
   const toggleImportanceOf = id => {
@@ -46,7 +56,7 @@ const App = () => {
     })
     .catch(error => {
       setErrorMessage(
-        `Entry '${entry.content}' was already removed from server`
+        `${error.response.data.error}`
       )
       setTimeout(() => {
         setErrorMessage(null)
@@ -55,8 +65,12 @@ const App = () => {
   }
 
   const handleEntryChange = (event) => {
-    console.log(event.target.value)
-    setNewEntry(event.target.value)
+    if(event.target.name === "name") {
+      setNameEntry(event.target.value)
+    } else {
+      setNumEntry(event.target.value)
+    }
+    
   }
 
   useEffect(() => {
@@ -89,9 +103,16 @@ const App = () => {
             />
         )}
       </ul>
-      <form onSubmit={addNote}>
+      <form onSubmit={addEntry}>
+        <input 
+          name="name" 
+          type="name" 
+          value={nameEntry}
+          onChange={handleEntryChange}/>
         <input
-          value={newEntry}
+          name="number"
+          type="number"
+          value={numEntry}
           onChange={handleEntryChange}
         />
         <button type="submit">save</button>
